@@ -6,9 +6,10 @@
     "type": "project",
     "require": {
         "php": ">=7.0.0",
-        "encore/laravel-admin": "1.5.*",
+        "encore/laravel-admin": "1.6.*",
         "endroid/qr-code": "^3.2",
         "fideloper/proxy": "~3.3",
+        "ichynul/iframe-tabs": "^1.1",
         "laravel/framework": "5.5.*",
         "laravel/tinker": "~1.0",
         "overtrue/laravel-lang": "~3.0",
@@ -63,5 +64,11 @@
         "preferred-install": "dist",
         "sort-packages": true,
         "optimize-autoloader": true
+    },
+    "repositories": {
+        "packagist": {
+            "type": "composer",
+            "url": "https://packagist.phpcomposer.com"
+        }
     }
 }

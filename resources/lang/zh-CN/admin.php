@@ -19,6 +19,7 @@ return [
     'remove'                => '移除',
     'edit'                  => '编辑',
     'continue_editing'      => '继续编辑',
+    'continue_creating'     => '继续创建',
     'view'                  => '查看',
     'detail'                => '详细',
     'browse'                => '浏览',
@@ -96,5 +97,18 @@ return [
         'filtered'           => '{0} / {1}',
         'filter_clear'       => '显示全部',
         'filter_placeholder' => '过滤',
+    ],
+    'menu_titles' => [],
+    'iframe_tabs' => [
+        'oprations' => '页签操作',
+        'refresh_current' => '刷新当前',
+        'close_current' => '关闭当前',
+        'close_all' => '关闭全部',
+        'close_other' => '关闭其他',
+        'open_in_new' => '新窗口打开',
+        'open_in_pop' => '弹出窗打开',
+        'scroll_left' => '滚动到最左',
+        'scroll_right' => '滚动到最右',
+        'scroll_current' => '滚动到当前'
     ],
 ];

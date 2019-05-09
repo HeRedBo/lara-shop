@@ -84,7 +84,7 @@ class Category extends Model
         static $res = [];
         if($is_clear)
             $res = [];
-        foreach ($data as $k => &$v)
+        foreach ($data as $k => $v)
         {
 
             if($v->parent_id == $parent_id)
