@@ -13,6 +13,8 @@ Route::group([
     $router->get('/', 'HomeController@index');
 
     $router->get('/menu', 'HomeController@menu');
+    $router->get('/artisan', 'HomeController@artisan');
+
     // 用户
     $router->get('users', 'UsersController@index');
 
@@ -46,6 +48,12 @@ Route::group([
 
      //商品分类
     $router->resource('categories', 'CategoriesController');
+
+    //众筹商品
+    $router->resource('crowdfunding_products', 'CrowdfundingProductsController');
+
+    //秒杀商品
+    $router->resource('seckill_products', 'SeckillProductsController');
 
 
 

@@ -9,6 +9,8 @@ use Encore\Admin\Facades\Admin;
 use Encore\Admin\Layout\Column;
 use Encore\Admin\Layout\Content;
 use Encore\Admin\Layout\Row;
+use Illuminate\Support\Facades\Artisan;
+use Elasticsearch\ClientBuilder;
 
 class HomeController extends AdminController
 {
@@ -87,5 +89,11 @@ class HomeController extends AdminController
                 }
         }
         return $res;
+    }
+
+    public function artisan()
+    {
+        $res=  Artisan::call('es:sync-products');
+        dd($res);
     }
 }

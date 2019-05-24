@@ -16,6 +16,7 @@ use Encore\Admin\Grid;
 use Encore\Admin\Layout\Content;
 use Encore\Admin\Show;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\View;
 
 
 class ProductSkusController extends Controller
@@ -272,6 +273,16 @@ class ProductSkusController extends Controller
      */
     public function getAttributes($id)
     {
+        $attributes = ProductAttribute::where([
+            ['hasmany','=',1],
+            ['product_id' ,'=', $id]
+        ])->get();
+        if(!request()->wantsJson())
+        {
+            return view('admin.product_sku.attribute', [
+                'data' => $attributes
+            ]);
+        }
         return ProductAttribute::where([
             ['hasmany','=',1],
             ['product_id' ,'=', $id]

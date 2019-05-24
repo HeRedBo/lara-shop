@@ -4,57 +4,81 @@ namespace App\Admin\Controllers;
 
 use App\Models\Category;
 use App\Models\Product;
-
-use App\Models\ProductAttribute;
+use App\Http\Controllers\Controller;
+use Encore\Admin\Controllers\HasResourceActions;
+use Encore\Admin\Controllers\ModelForm;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
-use Encore\Admin\Facades\Admin;
 use Encore\Admin\Layout\Content;
-use App\Http\Controllers\Controller;
-use Encore\Admin\Controllers\ModelForm;
+use Encore\Admin\Show;
+use Encore\Admin\Facades\Admin;
 
-class ProductsController extends Controller
+abstract class CommonProductsController extends Controller
 {
     use ModelForm;
+    //抽象方法，返回当前管理的商品类型
+    abstract public function getProductType();
+    //抽象方法，返回列表应该展示的字段
+    abstract protected function customGrid(Grid $grid);
+    //抽象方法，返回表单额外字段
+    abstract protected function customForm(Form $form);
+
 
     /**
      * Index interface.
      *
+     * @param Content $content
      * @return Content
      */
-    public function index()
+    public function index(Content $content)
     {
-        return Admin::content(function (Content $content) {
-            $content->header('商品列表');
-            $content->body($this->grid());
-        });
+        return $content
+            ->header(Product::$typeMap[$this->getProductType()].'列表')
+            ->body($this->grid());
+    }
+
+    /**
+     * Show interface.
+     *
+     * @param mixed $id
+     * @param Content $content
+     * @return Content
+     */
+    public function show($id, Content $content)
+    {
+        return $content
+            ->header('Detail')
+            ->description('description')
+            ->body($this->detail($id));
     }
 
     /**
      * Edit interface.
      *
-     * @param $id
+     * @param mixed $id
+     * @param Content $content
      * @return Content
      */
-    public function edit($id)
+    public function edit($id, Content $content)
     {
-        return Admin::content(function (Content $content) use ($id) {
-            $content->header('编辑商品');
-            $content->body($this->form()->edit($id));
-        });
+        return $content
+            ->header('Edit')
+            ->description('description')
+            ->body($this->form()->edit($id));
     }
 
     /**
      * Create interface.
      *
+     * @param Content $content
      * @return Content
      */
-    public function create()
+    public function create(Content $content)
     {
-        return Admin::content(function (Content $content) {
-            $content->header('创建商品');
-            $content->body($this->form());
-        });
+        return $content
+            ->header('创建'.Product::$typeMap[$this->getProductType()])
+            ->description('')
+            ->body($this->form());
     }
 
     /**
@@ -64,28 +88,48 @@ class ProductsController extends Controller
      */
     protected function grid()
     {
-        return Admin::grid(Product::class, function (Grid $grid) {
-            $grid->id('ID')->sortable();
-            $grid->title('商品名称');
-            $grid->on_sale('已上架')->display(function ($value) {
-                return $value ? '是' : '否';
-            });
-            $grid->price('价格');
-            $grid->rating('评分');
-            $grid->sold_count('销量');
-            $grid->review_count('评论数');
-
-            $grid->actions(function ($actions) {
-                $actions->disableView();
-                # $actions->disableDelete();
-            });
-            $grid->tools(function ($tools) {
-                // 禁用批量删除按钮
-                $tools->batch(function ($batch) {
-                    $batch->disableDelete();
-                });
+        $grid = new Grid(new Product);
+        $grid->model()->where('type',$this->getProductType())->orderBy('id', 'desc');
+        $grid->id('ID')->sortable();
+        $this->customGrid($grid);//传对象，改变原值，nice
+        $grid->tools(function ($tools) {
+            // 禁用批量删除按钮
+            $tools->batch(function ($batch) {
+                $batch->disableDelete();
             });
         });
+        $grid->created_at('更新时间');
+        $grid->updated_at('更新时间');
+
+        return $grid;
+    }
+
+    /**
+     * Make a show builder.
+     *
+     * @param mixed $id
+     * @return Show
+     */
+    protected function detail($id)
+    {
+        $show = new Show(Product::findOrFail($id));
+
+        $show->id('Id');
+        $show->type('Type');
+        $show->title('Title');
+        $show->long_title('Long title');
+        $show->category_id('Category id');
+        $show->description('Description');
+        $show->image('Image');
+        $show->on_sale('On sale');
+        $show->rating('Rating');
+        $show->sold_count('Sold count');
+        $show->review_count('Review count');
+        $show->price('Price');
+        $show->created_at('Created at');
+        $show->updated_at('Updated at');
+
+        return $show;
     }
 
     /**
@@ -103,9 +147,9 @@ class ProductsController extends Controller
         }
         $product = (int) $id ? Product::find($id) : [];
         $category_id = $product ? $product->category_id : 0;
-
         // 创建一个表单
         return Admin::form(Product::class, function (Form $form) use ($options, $category_id) {
+            $form->hidden('type', '商品类型')->default($this->getProductType())->rules('required');
             // 创建一个输入框，第一个参数 title 是模型的字段名，第二个参数是该字段描述
             $form->text('title', '商品名称')->rules('required');
             $form->text('long_title', '商品长标题')->rules('required');
@@ -115,9 +159,9 @@ class ProductsController extends Controller
             $form->image('image', '封面图片')->rules('required|image');
             // 创建一个富文本编辑器
             $form->editor('description', '商品描述')->rules('required');
-            
             // 创建一组单选框
             $form->radio('on_sale', '上架')->options(['1' => '是', '0' => '否'])->default('0');
+            $this->customForm($form); //传对象，改变原值，nice
             $form->hasMany('pro_attr','商品属性', function (Form\NestedForm $form) {
                 $form->text('name', '属性名称')->placeholder('请输入该商品具有的属性名称，例如:颜色')->rules('required');
                 $form->radio('hasmany', '属性是否可选')
@@ -132,32 +176,11 @@ class ProductsController extends Controller
                     ->default('1');
             });
 
-
             // 定义事件回调，当模型即将保存时会触发这个回调
-            $form->saving(function (Form $form) {
-                $form->model()->price = collect($form->input('skus'))->where(Form::REMOVE_FLAG_NAME, 0)->min('price') ?: 0;
-            });
+            // $form->saving(function (Form $form) {
+            //     $form->model()->price = collect($form->input('skus'))->where(Form::REMOVE_FLAG_NAME, 0)->min('price') ?: 0;
+            // });
         });
-    }
 
-
-    public function destroy($id)
-    {
-        if($this->form()->destroy($id))
-        {
-            ProductAttribute::where('product_id',$id)->delete();
-            #Attribute::where('product_id',$id)->delete();
-            return response()->json([
-                'status'  => true,
-                'message' => trans('admin.delete_succeeded'),
-            ]);
-        }
-        else
-        {
-            return response()->json([
-                'status'  => false,
-                'message' => trans('admin.delete_failed'),
-            ]);
-        }
     }
 }

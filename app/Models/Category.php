@@ -15,7 +15,7 @@ class Category extends Model
 
     protected $dates = ['created_at', 'updated_at'];
 
-    protected $fillable = ['id','name','parent_id','score','is_show'];
+    protected $fillable = ['id','name','parent_id','score','is_show','level_path'];
 
     # 是否显示状态
     const IS_SHOW_OFF = 0;
@@ -150,6 +150,8 @@ class Category extends Model
             return $option_data;
         }
     }
+
+
 
 
 
