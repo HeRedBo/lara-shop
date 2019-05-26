@@ -230,20 +230,16 @@ class ProductSkusController extends Controller
         if($product_id)
         {
             $product_attr = $this->getAttributes($product_id);
-            if($product_attr)
-            {
-                $product_attr = $product_attr->toArray();
-            }
         }
         $products = $this->getProduct();
         $products = array_column($products, 'text','id');
         $form->display('id', 'ID');
         $form->hidden('id', 'ID');
         $form->select('product_id', '选择商品')->options($products)->default($product_id)->rules('required');
-        if($id > 0 && $product_attr && $sku_attributes)
+        if($id > 0 && $product_attr->data && $sku_attributes)
         {
             $sku_attributes_dict= array_column($sku_attributes,'attr_val','attr_id');
-            foreach ($product_attr as $item)
+            foreach ($product_attr->data as $item)
             {
                 $atr_val = isset($sku_attributes_dict[$item['id']]) ? $sku_attributes_dict[$item['id']] : '';
                 $form->text('attributes['.$item['id'].']', $item['name'])
@@ -283,9 +279,6 @@ class ProductSkusController extends Controller
                 'data' => $attributes
             ]);
         }
-        return ProductAttribute::where([
-            ['hasmany','=',1],
-            ['product_id' ,'=', $id]
-        ])->get();
+        return $attributes;
     }
 }

@@ -121,8 +121,11 @@
                             else if(after_save == 1)
                             {
                                 // 继续编辑
-                                url = '/admin/skus/' + data.id + '/edit';
-                                
+                                url = '/admin/skus/' + data.id + '/edit';  
+                            }
+                            else if (after_save == 2) {
+                                // 继续创建
+                                url = '/admin/skus/create';  
                             }
                             else
                             {
