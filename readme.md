@@ -30,7 +30,7 @@
 - 安装好npm(建议使用国内镜像cnpm,安装速度更快)
 - redis
 - MySQL 
-- ElasticSearch 并按照好ik 分词插件
+- ElasticSearch 并安装好ik 分词插件
 
 ### 安装方法
 
