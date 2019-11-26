@@ -6,6 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 
 class CreateOrderItemsTable extends Migration
 {
+    protected $table_name = 'order_items';
     /**
      * Run the migrations.
      *
@@ -13,7 +14,10 @@ class CreateOrderItemsTable extends Migration
      */
     public function up()
     {
-        Schema::create('order_items', function (Blueprint $table) {
+        if (Schema::hasTable($this->table_name)) {
+            return false;
+        }
+        Schema::create($this->table_name, function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('order_id');
             $table->foreign('order_id')->references('id')->on('orders')->onDelete('cascade');
@@ -36,6 +40,6 @@ class CreateOrderItemsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('order_items');
+        Schema::dropIfExists($this->table_name);
     }
 }

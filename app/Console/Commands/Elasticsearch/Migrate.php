@@ -52,14 +52,13 @@ class Migrate extends Command
                 $this->info('索引不存在，准备创建');
                 $this->createIndex($aliasName, $indexClass);
                 $this->info('创建成功，准备初始化数据');
-               #  $indexClass::rebuild($aliasName);
+                $indexClass::rebuild($aliasName);
                 $this->info('操作成功');
                 continue;
             }
 
             // 如果索引已经存在 那么尝试更新索引 如果失败就抛出异常
             $this->reCreateIndex($aliasName, $indexClass);
-            continue;
             try 
             {
                 $this->info("索引存在，准备更新");
@@ -101,7 +100,8 @@ class Migrate extends Command
                     // 同时创建别名
                     $aliasName => new \stdClass(),
                 ]
-            ]
+            ],
+            'include_type_name' => true,
         ]);
     }
 
@@ -129,7 +129,8 @@ class Migrate extends Command
                 '_doc' => [
                     'properties' => $indexClass::getProperties(),
                 ]
-            ]
+            ],
+            'include_type_name' => true,
         ]);
         // 重新打开索引
         $this->es->indices()->open(['index' => $aliasName]);
@@ -160,6 +161,7 @@ class Migrate extends Command
                     ],
                 ],
             ],
+            'include_type_name' => true,
         ]);
         $this->info('创建成功，准备重建数据');
         $this->info('重建成功，准备修改别名');

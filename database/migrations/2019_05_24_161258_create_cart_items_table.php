@@ -6,6 +6,7 @@ use Illuminate\Database\Migrations\Migration;
 
 class CreateCartItemsTable extends Migration
 {
+    protected $table_name = 'cart_items';
     /**
      * Run the migrations.
      *
@@ -13,7 +14,10 @@ class CreateCartItemsTable extends Migration
      */
     public function up()
     {
-        Schema::create('cart_items', function (Blueprint $table) {
+        if (Schema::hasTable($this->table_name)) {
+            return false;
+        }
+        Schema::create($this->table_name, function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('user_id');
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
@@ -30,6 +34,6 @@ class CreateCartItemsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('cart_items');
+        Schema::dropIfExists($this->table_name);
     }
 }

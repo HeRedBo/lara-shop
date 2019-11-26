@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Jobs\SyncOneProductToES;
 use App\Models\Category;
 use App\Models\Product;
 
@@ -74,7 +75,6 @@ class ProductsController extends Controller
             $grid->rating('评分');
             $grid->sold_count('销量');
             $grid->review_count('评论数');
-
             $grid->actions(function ($actions) {
                 $actions->disableView();
                 # $actions->disableDelete();
@@ -131,8 +131,6 @@ class ProductsController extends Controller
                     ->options(['0'=>'不参与', '1'=>'参与'])
                     ->default('1');
             });
-
-
             // 定义事件回调，当模型即将保存时会触发这个回调
             $form->saving(function (Form $form) {
                 $form->model()->price = collect($form->input('skus'))->where(Form::REMOVE_FLAG_NAME, 0)->min('price') ?: 0;

@@ -2,9 +2,17 @@
 
 namespace App\Providers;
 
+use App\Entities\Attribute;
 use App\Models\Category;
+use App\Models\Product;
+use App\Models\ProductSku;
+use App\Observers\AttributeObserver;
+use App\Observers\ProductObserver;
 use App\Observers\CategoryObserver;
+use App\Observers\ProductSkuObserver;
+use Carbon\Carbon;
 use Elasticsearch\ClientBuilder;
+use Illuminate\Support\Facades\Schema;
 use Monolog\Logger;
 use Yansongda\Pay\Pay;
 use Illuminate\Support\ServiceProvider;
@@ -18,9 +26,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-
-        // 商品分类注册
-        Category::observe(CategoryObserver::class);
+        Schema::defaultStringLength(191);
+        Carbon::setLocale('zh');
+        // ProductObserver
+        Product::observe(ProductObserver::class);
+        Category::observe(CategoryObserver::class);        // 商品分类注册
+        Attribute::observe(AttributeObserver::class);         ## 商品熟悉修改监听
+        ProductSku::observe(ProductSkuObserver::class);         # 商品sku 时间监听
     }
 
     /**

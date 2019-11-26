@@ -13,7 +13,7 @@ class SyncProducts extends Command
      *
      * @var string
      */
-    protected $signature = 'es:sync-products {--index=products}';
+    protected $signature = 'es:sync-products {--index=shop_products}';
 
     /**
      * The console command description.
@@ -71,14 +71,12 @@ class SyncProducts extends Command
                     ];
                     $req['body'][] = $data;
                 }
-//                dd($req);
                 try {
                     // 使用 bulk 方法批量创建
                     $res = $es->bulk($req);
                 } catch (\Exception $e) {
                     $this->error($e->getMessage());
                 }
-
 
             });
         $this->info('同步完成');

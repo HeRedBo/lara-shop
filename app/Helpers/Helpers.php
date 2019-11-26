@@ -1,6 +1,6 @@
 <?php
 
-
+use App\Services\Logs\FileLogger;
 if(!function_exists('logResult'))
 {
     /**
@@ -9,12 +9,12 @@ if(!function_exists('logResult'))
      * @param string $filename 日志文件名称
      * @return bool
      */
-    function logResult()
+    function logResult($data,$level = 'info',$filename = '')
     {
         $filename = $filename ?: FileLogger::LOG_INFO;
         $levels = FileLogger::$levels;
         if(!empty($level) && !in_array($level, $levels))
-        $level = 'info';
+            $level = 'info';
         FileLogger::getLogger($filename)->$level($data);
         return true;
     }

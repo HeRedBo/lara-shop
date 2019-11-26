@@ -88,7 +88,7 @@ class Product extends Model
             'price',
         ]);
         // 如果商品有类目，则 category 字段为类目名数组，否则为空字符串
-        $arr['category']  = [];
+        $arr['category']  = '';
         if($this->category)
         {
             $level_path = $this->category->level_path;
@@ -98,7 +98,7 @@ class Product extends Model
                 $names = array_map(function($v) use ($categories) {
                     return isset($categories[$v]) ? $categories[$v] : '';
                 }, $level_path_arr);
-                $arr['category'] = $names;
+                $arr['category'] = implode('-',$names); ;
             }
         }
 
