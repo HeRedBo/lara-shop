@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Console\Commands\Elasticsearch\Indices\ProjectIndex;
 use App\Jobs\SyncOneProductToES;
 use App\Models\Product;
 
@@ -21,4 +22,15 @@ class ProductObserver
         dispatch(new SyncOneProductToES($product));
     }
 
+
+    public function deleted(Product $product)
+    {
+        $params = [
+            'index' => ProjectIndex::getAliasName(),
+            'type'  => '_doc',
+            'id'    => $product->id,
+        ];
+        //商品删除的同时把ES里的数据也删了
+        app('es')->delete($params);
+    }
 }

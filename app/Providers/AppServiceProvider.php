@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Entities\Attribute;
+use App\Models\Attribute;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\ProductSku;
