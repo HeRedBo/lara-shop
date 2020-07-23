@@ -21,8 +21,6 @@ class Category extends Model
     const IS_SHOW_OFF = 0;
     const IS_SHOW_ON = 1;
 
-
-
     public function parent()
     {
         return $this->belongsTo(Category::class, 'parent_id');
@@ -32,6 +30,37 @@ class Category extends Model
     {
         return $this->hasMany(Category::class, 'parent_id');
     }
+
+    public function product()
+    {
+        $this->hasMany(Product::class);
+    }
+
+    // 获取所有祖先类目ID的值
+    public function getPathIdsAttribute()
+    {
+        $all_ids = array_filter(explode('-', trim($this->level_path,'-')));
+        array_pop($all_ids);
+        return $all_ids;
+    }
+
+    public function getAncestorsAttribute()
+    {
+        $path_ids = $this->path_ids;
+        $result = [];
+        if($path_ids)
+        {
+            $result = Category::whereIn('id', $path_ids)
+                ->orderBy('level','asc')
+                ->get();
+        }
+        return $result;
+    }
+
+
+
+
+
 
     public function __construct(array $attributes = [])
     {
@@ -48,6 +77,12 @@ class Category extends Model
      * @var bool
      */
     public $timestamps = true;
+
+    //显示已经启用的类目
+    public function scopeShow($query)
+    {
+        return $query->where('is_show', '=', self::IS_SHOW_ON);
+    }
 
 
     public function getCateList($isLevel= false, $show_top = false)
@@ -68,6 +103,42 @@ class Category extends Model
         if($show_top)  array_push($res, $top_arr);
         return $res;
 
+    }
+
+
+    public function getCateTree( $data = [], $parent_id = 0)
+    {
+        if(empty($data))
+        {
+            $data = Category::show()->get()->toArray();
+        }
+        $a = 0;
+        return $this->_getTree($data, $parent_id, $a, true);
+    }
+
+    public function _getTree($data, $parent_id, &$obj= 0, $refresh = false)
+    {
+        static $res = [];
+        if($refresh)
+        {
+            $res = [];
+        }
+        foreach ($data as $k => $v)
+        {
+            if($v['parent_id'] == $parent_id) {
+                if($obj === 0)
+                {
+                    $this->_getTree($data, $v['id'], $v);
+                    $res[] = $v;
+                }
+                else
+                {
+                    $this->_getTree($data, $v['id'], $v);
+                    $obj['children'][] = $v;
+                }
+            }
+        }
+        return $res;
     }
 
     public function getTree()

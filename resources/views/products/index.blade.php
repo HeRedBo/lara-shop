@@ -8,6 +8,23 @@
   <div class="panel-body">
     <div class="row">
       <form action="{{ route('products.index') }}" class="form-inline search-form">
+        
+         <!-- 添加一个名为 全部 的链接，直接跳转到商品列表页 -->
+        <a href="{{ route('products.index') }}" class="all-products">全部</a>&gt;
+         <!-- 面包屑开始 -->
+        @if($category)
+            <!-- 遍历这个类目的所有祖先类目，我们在模型的访问器中已经排好序，因此可以直接使用 -->
+            @foreach($category->ancestors as $ancestor)
+               <span class="category">
+                      <a href="{{ route('products.index', ['category_id' => $ancestor->id]) }}">{{ $ancestor->name }}</a>
+                </span>
+                <span>></span>
+            @endforeach
+            <!-- 最后展示出当前类目名称 -->
+              <span class="category"><a href="{{ route('products.index', ['category_id' => $category->id]) }}">{{ $category->name }}</span><span></a></span> 
+        @endif
+         <!-- 面包屑结束 -->
+
         <input type="text" class="form-control input-sm" name="search" placeholder="搜索">
         <button class="btn btn-primary btn-sm">搜索</button>
         <select name="order" class="form-control input-sm pull-right">

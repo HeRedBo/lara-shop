@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\InvalidRequestException;
+use App\Models\Category;
 use App\SearchBuilders\ProductSearchBuilder;
 use Illuminate\Http\Request;
 use App\Models\Product;
@@ -23,6 +24,14 @@ class ProductsController extends Controller
             $keywords = array_filter(explode(' ', $search));
             $builder->keywords($keywords);
         };
+
+        // 类目查询
+        $category = [];
+        if($request->get('category_id'))
+        {
+            $category = Category::find($request->get('category_id'));
+            $builder->category($category);
+        }
         // 是否有提交 order 参数，如果有就赋值给 $order 变量
         // order 参数用来控制商品的排序规则
         if($order = $request->get('order','')) {
@@ -48,16 +57,18 @@ class ProductsController extends Controller
        $productIds = collect($result['hits']['hits'])->pluck('_id')->all();
         // 通过 whereIn 方法从数据库中读取商品数据
        $products = Product::whereIn('id',$productIds)->get();
-        $products = new LengthAwarePaginator($products,$result['hits']['total']['value'], $perPage, $page , [
+       $products = new LengthAwarePaginator($products,$result['hits']['total']['value'], $perPage, $page , [
             'path' => route('products.index', false), // 手动构建分页的 url
         ]);
-
+        $categoryTree = (new Category())->getCateTree();
         return view('products.index', [
             'products' => $products,
+            'category' => $category,
             'filters'  => [
                 'search' => $search,
                 'order'  => $order,
             ],
+            'categoryTree' => $categoryTree
         ]);
     }
 
