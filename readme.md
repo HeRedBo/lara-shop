@@ -40,7 +40,7 @@ git clone https://github.com/HeRedBo/lara-shop
 ```
 - 2.更改storage目录权限，
 ```
-chomd
+chomd -R 777 ./storage
 ```
 - 3.使用 composer 安装 项目扩展包
 ```
